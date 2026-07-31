@@ -23,7 +23,7 @@ The system has **4 screens**:
 
 ### Step 1: Open the system
 
-👉 **Click here: [seanengzy.github.io/FYP](https://seanengzy.github.io/FYP/)**
+👉 **Click here: [seanengzy.github.io/HR-Decision-Support-System-FYP](https://seanengzy.github.io/HR-Decision-Support-System-FYP/)**
 
 That's it. The system opens straight in your browser. Nothing to install, nothing to download.
 
