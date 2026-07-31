@@ -1,0 +1,34 @@
+# HR Analytics DSS - Python dependencies
+# Built and tested on Python 3.13.7
+#
+# Install:
+#   python -m venv .venv
+#   .venv\Scripts\activate          (Windows)
+#   source .venv/bin/activate       (macOS / Linux)
+#   pip install -r requirements.txt
+#
+# Only needed to run attAnalytics.ipynb (data analysis + model training).
+# The web app itself (index.html and the other pages) needs no Python.
+
+# --- Core data handling ---
+pandas==3.0.3
+numpy==2.4.6
+scipy==1.17.1
+joblib==1.5.3
+
+# --- Visualisation ---
+matplotlib==3.10.9
+seaborn==0.13.2
+
+# --- Machine learning ---
+scikit-learn==1.8.0
+xgboost>=2.1.0
+lightgbm==4.6.0
+catboost==1.2.10
+imbalanced-learn==0.14.2
+
+# --- Model explainability ---
+shap==0.52.0
+
+# --- Notebook support ---
+ipykernel==7.3.0
