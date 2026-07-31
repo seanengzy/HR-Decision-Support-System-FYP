@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dataset · HR Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="data.js" onerror="document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;color:#1e40af;font-size:.85rem;text-align:center;padding:2rem\'><div><b>data.js not found</b><br><br>Make sure <code>data.js</code> is in the same folder as this HTML file.</div></div>'"></script>
+<style>
+:root{
+  --bg:#1c2029; --surf:#252d3a; --border:rgba(255,255,255,.1); --border2:rgba(255,255,255,.07);
+  --text:#f1f5f9; --muted:#94a3b8; --faint:#64748b;
+  --or:#3b82f6; --or-bg:rgba(59,130,246,.12); --or-bd:rgba(59,130,246,.28);
+  --am:#f59e0b; --gr:#22c55e; --re:#ef4444;
+  --fd:'Cormorant',serif; --fb:'DM Sans',sans-serif; --fm:'IBM Plex Mono',monospace;
+  --sw:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:linear-gradient(135deg,#1c2029 0%,#242c38 100%) fixed;background-attachment:fixed;color:var(--text);font-family:var(--fb);display:flex;}
+.sb{width:var(--sw);min-height:100vh;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:0;top:0;bottom:0;z-index:10;}
+.sb-logo{padding:0 1.4rem 1.4rem;border-bottom:1px solid var(--border2);margin-bottom:.8rem;}
+.sb-brand{font-family:var(--fd);font-size:1.05rem;font-weight:600;color:var(--text);}
+.sb-sub{font-size:.62rem;color:var(--faint);font-family:var(--fm);margin-top:3px;text-transform:uppercase;letter-spacing:.14em;}
+.nav-a{display:flex;align-items:center;gap:.65rem;padding:.68rem 1.4rem;font-size:.8rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .18s;}
+.nav-a:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.nav-a.on{color:var(--or);border-left-color:var(--or);background:var(--or-bg);font-weight:500;}
+.nav-a svg{width:14px;height:14px;flex-shrink:0;opacity:.6;}
+.nav-a.on svg,.nav-a:hover svg{opacity:1;}
+/* Filters */
+.fs{padding:.9rem 1.4rem;overflow-y:auto;flex:1;}
+.fs::-webkit-scrollbar{width:3px;}
+.fs::-webkit-scrollbar-thumb{background:var(--border);}
+.fh{font-family:var(--fm);font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2);}
+.fg{margin-bottom:.85rem;}
+.fl{font-size:.7rem;color:var(--muted);margin-bottom:.28rem;font-weight:500;}
+select.ff{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.42rem .7rem;color:var(--text);font-size:.72rem;outline:none;font-family:var(--fb);}
+select.ff:focus{border-color:var(--or);}
+select.ff option{background:#252d3a;color:var(--text);}
+.fr{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.28rem;}
+.fb{padding:.27rem .6rem;border-radius:4px;border:1px solid var(--border);font-size:.67rem;cursor:pointer;background:transparent;color:var(--muted);font-family:var(--fb);transition:all .15s;}
+.fb.on{background:var(--or-bg);border-color:var(--or-bd);color:var(--or);}
+.rst{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--muted);padding:.44rem;border-radius:5px;font-size:.68rem;cursor:pointer;font-family:var(--fm);transition:all .18s;margin-top:.3rem;}
+.rst:hover{border-color:var(--or);color:var(--or);}
+/* Main */
+.main{margin-left:var(--sw);flex:1;height:100vh;display:flex;flex-direction:column;padding:1.8rem 2.2rem;overflow:hidden;background:transparent;}
+.tr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;gap:1rem;flex-shrink:0;}
+.pt{font-family:var(--fd);font-size:1.8rem;font-weight:600;}
+.cnt{font-family:var(--fm);font-size:.62rem;color:var(--faint);margin-top:.2rem;letter-spacing:.04em;}
+.cnt span{color:var(--or);}
+.se{display:flex;gap:.6rem;align-items:center;}
+.ts{background:var(--surf);border:1.5px solid var(--border);border-radius:7px;padding:.48rem .9rem;color:var(--text);font-size:.75rem;outline:none;width:210px;font-family:var(--fb);}
+.ts:focus{border-color:var(--or);}
+.eb{background:var(--or);color:#fff;border:none;padding:.48rem 1rem;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:var(--fm);font-weight:500;transition:opacity .2s;}
+.eb:hover{opacity:.88;}
+/* Col toggles */
+.ctr{display:flex;gap:.32rem;flex-wrap:wrap;margin-bottom:.7rem;flex-shrink:0;}
+.cc{padding:.2rem .52rem;border-radius:4px;border:1px solid var(--border);font-size:.6rem;cursor:pointer;background:transparent;color:var(--faint);font-family:var(--fm);transition:all .15s;}
+.cc.on{background:var(--or-bg);border-color:var(--or-bd);color:var(--or);}
+/* Table */
+.tw{flex:1;overflow:auto;border:1px solid var(--border);border-radius:8px;background:var(--surf);box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.tw::-webkit-scrollbar{width:4px;height:4px;}
+.tw::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+table{width:100%;border-collapse:collapse;font-size:.76rem;}
+thead{position:sticky;top:0;z-index:2;}
+th{background:var(--surf);border-bottom:1.5px solid var(--border);padding:.58rem .9rem;text-align:left;font-family:var(--fm);font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+th.sorted{color:var(--or);}
+tr:hover td{background:rgba(255,255,255,.04);}
+td{padding:.5rem .9rem;border-bottom:1px solid var(--border2);white-space:nowrap;}
+.by{display:inline-block;padding:.17rem .5rem;border-radius:3px;font-size:.63rem;font-weight:500;font-family:var(--fm);}
+.by-y{background:rgba(239,68,68,.15);color:#f87171;}
+.by-n{background:rgba(34,197,94,.15);color:#4ade80;}
+.empty td{text-align:center;color:var(--faint);padding:3rem;font-size:.8rem;}
+</style>
+</head>
+<body>
+<nav class="sb">
+  <div class="sb-logo"><div class="sb-brand">HR Analytics</div><div class="sb-sub">Decision Support</div></div>
+  <a href="index.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6.5L7 1.5L13 6.5V13H9.5V9.5H4.5V13H1V6.5Z"/></svg>
+    Home
+  </a>
+  <a href="statistics.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="8" width="3" height="5" rx=".5"/><rect x="5.5" y="5" width="3" height="8" rx=".5"/><rect x="10" y="2" width="3" height="11" rx=".5"/></svg>
+    Statistics
+  </a>
+  <a href="prediction.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><circle cx="7" cy="7" r="2.5"/><circle cx="7" cy="7" r=".75" fill="currentColor" stroke="none"/></svg>
+    Prediction
+  </a>
+  <a href="dataset.html" class="nav-a on">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="12" height="12" rx="1.5"/><line x1="1" y1="5" x2="13" y2="5"/><line x1="5" y1="5" x2="5" y2="13"/></svg>
+    Dataset
+  </a>
+  <div class="fs">
+    <div class="fh">Filters</div>
+    <div class="fg"><div class="fl">Department</div><select class="ff" id="fD" onchange="go()"><option value="">All</option></select></div>
+    <div class="fg"><div class="fl">Job Role</div><select class="ff" id="fR" onchange="go()"><option value="">All</option></select></div>
+    <div class="fg"><div class="fl">Attrition</div>
+      <div class="fr">
+        <button class="fb on" onclick="setF(this,'attr','')">All</button>
+        <button class="fb" onclick="setF(this,'attr','Yes')">Yes</button>
+        <button class="fb" onclick="setF(this,'attr','No')">No</button>
+      </div>
+    </div>
+    <div class="fg"><div class="fl">Gender</div>
+      <div class="fr">
+        <button class="fb on" onclick="setF(this,'gen','')">All</button>
+        <button class="fb" onclick="setF(this,'gen','Male')">Male</button>
+        <button class="fb" onclick="setF(this,'gen','Female')">Female</button>
+      </div>
+    </div>
+    <div class="fg"><div class="fl">Overtime</div>
+      <div class="fr">
+        <button class="fb on" onclick="setF(this,'ot','')">All</button>
+        <button class="fb" onclick="setF(this,'ot','Yes')">Yes</button>
+        <button class="fb" onclick="setF(this,'ot','No')">No</button>
+      </div>
+    </div>
+    <button class="rst" onclick="reset()">↺ Reset Filters</button>
+  </div>
+</nav>
+<main class="main">
+  <div class="tr">
+    <div>
+      <div class="pt">Employee Dataset</div>
+      <div class="cnt">Showing <span id="cs">0</span> of <span id="ct">0</span> employees</div>
+    </div>
+    <div class="se">
+      <input class="ts" id="qs" placeholder="Search name, ID, role…" oninput="go()"/>
+      <button class="eb" onclick="exportCSV()">↓ Export CSV</button>
+    </div>
+  </div>
+  <div class="ctr" id="colRow"></div>
+  <div class="tw"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
+</main>
+<script>
+const df=HR_DATA;
+let filtered=[...df],sortCol='',sortDir=1,fAttr='',fGen='',fOT='';
+const DEF=['EmployeeID','EmployeeName','Age','Gender','Department','JobRole','MonthlyIncome','YearsAtCompany','Attrition','OverTime'];
+let cols=new Set(DEF);
+const allCols=Object.keys(df[0]||{}).filter(c=>!['Over18','EmployeeCount','StandardHours'].includes(c));
+[...new Set(df.map(r=>r.Department))].sort().forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;document.getElementById('fD').appendChild(o);});
+document.getElementById('colRow').innerHTML=allCols.map(c=>`<button class="cc ${cols.has(c)?'on':''}" onclick="togCol(this,'${c}')">${c.replace(/([A-Z])/g,' $1').trim()}</button>`).join('');
+document.getElementById('ct').textContent=df.length.toLocaleString();
+function setF(btn,t,v){
+  if(t==='attr')fAttr=v;if(t==='gen')fGen=v;if(t==='ot')fOT=v;
+  btn.closest('.fr').querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');go();
+}
+function updateRoles(){
+  const dept=document.getElementById('fD').value;
+  const rows=dept?df.filter(r=>r.Department===dept):df;
+  const roles=[...new Set(rows.map(r=>r.JobRole))].sort();
+  const sel=document.getElementById('fR');const cur=sel.value;
+  sel.innerHTML='<option value="">All</option>';
+  roles.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;if(r===cur)o.selected=true;sel.appendChild(o);});
+}
+function go(){
+  updateRoles();
+  const dept=document.getElementById('fD').value,role=document.getElementById('fR').value;
+  const q=document.getElementById('qs').value.toLowerCase();
+  filtered=df.filter(r=>{
+    if(dept&&r.Department!==dept)return false;
+    if(role&&r.JobRole!==role)return false;
+    if(fAttr&&r.Attrition!==fAttr)return false;
+    if(fGen&&r.Gender!==fGen)return false;
+    if(fOT&&r.OverTime!==fOT)return false;
+    if(q&&![r.EmployeeID,r.EmployeeName,r.JobRole,r.Department].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(sortCol){filtered.sort((a,b)=>{const av=a[sortCol],bv=b[sortCol];return(typeof av==='number'?av-bv:String(av).localeCompare(String(bv)))*sortDir;});}
+  render();
+}
+function reset(){
+  document.getElementById('fD').value='';document.getElementById('fR').value='';document.getElementById('qs').value='';
+  fAttr='';fGen='';fOT='';sortCol='';sortDir=1;
+  document.querySelectorAll('.fr').forEach(fr=>fr.querySelectorAll('.fb').forEach((b,i)=>b.classList.toggle('on',i===0)));
+  go();
+}
+function togCol(btn,c){
+  if(cols.has(c)){if(cols.size>1){cols.delete(c);btn.classList.remove('on');}}
+  else{cols.add(c);btn.classList.add('on');}render();
+}
+function sortBy(c){sortCol===c?sortDir*=-1:(sortCol=c,sortDir=1);go();}
+function render(){
+  document.getElementById('cs').textContent=filtered.length.toLocaleString();
+  const cl=[...cols];
+  document.getElementById('thead').innerHTML=cl.map(c=>`<th class="${c===sortCol?'sorted':''}" onclick="sortBy('${c}')">${c.replace(/([A-Z])/g,' $1').trim()} ${c===sortCol?(sortDir===1?'↑':'↓'):'↕'}</th>`).join('');
+  const rows=filtered.slice(0,500);
+  document.getElementById('tbody').innerHTML=rows.length
+    ?rows.map(r=>`<tr>${cl.map(c=>{let v=r[c];if(c==='MonthlyIncome'&&typeof v==='number')v='$'+v.toLocaleString();if(c==='Attrition')v=`<span class="by ${v==='Yes'?'by-y':'by-n'}">${v}</span>`;return`<td>${v??'—'}</td>`;}).join('')}</tr>`).join('')
+    :`<tr class="empty"><td colspan="${cl.length}">No employees match the current filters</td></tr>`;
+}
+function exportCSV(){
+  const cl=[...cols];
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([[cl.join(','),...filtered.map(r=>cl.map(c=>`"${r[c]??''}"`).join(','))].join('\n')],{type:'text/csv'}));
+  a.download='employees.csv';a.click();
+}
+go();
+</script>
+</body>
+</html>

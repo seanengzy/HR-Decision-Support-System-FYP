@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Prediction · HR Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,600;1,300&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="data.js" onerror="document.body.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;color:#1e40af;font-size:.85rem;text-align:center;padding:2rem\'><div><b>data.js not found</b><br><br>Make sure <code>data.js</code> is in the same folder as this HTML file.</div></div>'"></script>
+<script src="model.js" onerror="console.warn('model.js not found — run: python train_svm_model.py')"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#1c2029; --surf:#252d3a; --border:rgba(255,255,255,.1); --border2:rgba(255,255,255,.07);
+  --text:#f1f5f9; --muted:#94a3b8; --faint:#64748b;
+  --or:#3b82f6; --or-bg:rgba(59,130,246,.12); --or-bd:rgba(59,130,246,.28); --or-dk:#93c5fd;
+  --am:#f59e0b; --gr:#22c55e; --re:#ef4444;
+  --fd:'Cormorant',serif; --fb:'DM Sans',sans-serif; --fm:'IBM Plex Mono',monospace;
+  --sw:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:linear-gradient(135deg,#1c2029 0%,#242c38 100%) fixed;background-attachment:fixed;color:var(--text);font-family:var(--fb);display:flex;}
+
+/* Sidebar */
+.sb{width:var(--sw);min-height:100vh;background:var(--surf);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:fixed;left:0;top:0;bottom:0;z-index:10;}
+.sb-logo{padding:0 1.4rem 1.4rem;border-bottom:1px solid var(--border2);margin-bottom:.8rem;}
+.sb-brand{font-family:var(--fd);font-size:1.05rem;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+.sb-sub{font-size:.62rem;color:var(--faint);font-family:var(--fm);margin-top:3px;text-transform:uppercase;letter-spacing:.14em;}
+.nav-a{display:flex;align-items:center;gap:.65rem;padding:.68rem 1.4rem;font-size:.8rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;transition:all .18s;}
+.nav-a:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.nav-a.on{color:var(--or);border-left-color:var(--or);background:var(--or-bg);font-weight:500;}
+.nav-a svg{width:14px;height:14px;flex-shrink:0;opacity:.6;}
+.nav-a.on svg{opacity:1;}
+.nav-a:hover svg{opacity:.9;}
+
+/* AI status badge (bottom of sidebar) */
+.api-badge{padding:.85rem 1.4rem;margin-top:auto;border-top:1px solid var(--border2);font-family:var(--fm);font-size:.65rem;color:var(--faint);letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;}
+.api-badge.ready{color:var(--gr);}
+.api-badge.connecting{color:var(--am);}
+.api-badge.error{color:var(--re);}
+
+/* Main */
+.main{margin-left:var(--sw);flex:1;height:100vh;overflow-y:auto;padding:1.8rem 2.2rem;background:transparent;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* Header */
+.ph{margin-bottom:1.5rem;}
+.pt{font-family:var(--fd);font-size:1.8rem;font-weight:600;color:var(--text);line-height:1;}
+.ps{font-size:.72rem;color:var(--faint);font-family:var(--fm);margin-top:.4rem;letter-spacing:.04em;}
+
+/* Search */
+.sr{display:flex;gap:.7rem;margin-bottom:1.5rem;align-items:center;}
+.si{max-width:320px;flex:1;background:var(--surf);border:1.5px solid var(--border);border-radius:7px;padding:.68rem 1rem;color:var(--text);font-family:var(--fm);font-size:.78rem;outline:none;transition:border-color .2s;}
+.si:focus{border-color:var(--or);}
+.si::placeholder{color:var(--faint);}
+.sb2{background:var(--or);color:#fff;border:none;border-radius:7px;padding:0 1.3rem;height:40px;font-weight:500;font-size:.8rem;cursor:pointer;transition:opacity .2s;font-family:var(--fb);letter-spacing:.01em;}
+.sb2:hover{opacity:.88;}
+.sh{font-size:.7rem;color:var(--re);font-family:var(--fm);}
+
+/* Cards */
+#rp{display:none;}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem;}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.5rem;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.card-title{font-family:var(--fm);font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.card-title::before{content:'';display:block;width:14px;height:1.5px;background:var(--or);}
+
+/* Profile grid */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:.6rem 1rem;}
+.ir{display:flex;flex-direction:column;gap:.12rem;}
+.il{font-size:.58rem;color:var(--faint);font-family:var(--fm);text-transform:uppercase;letter-spacing:.1em;}
+.iv{font-size:.84rem;font-weight:500;color:var(--text);}
+
+details{margin-top:.9rem;}
+details summary{font-size:.68rem;color:var(--faint);cursor:pointer;font-family:var(--fm);list-style:none;display:flex;align-items:center;gap:.4rem;}
+details summary::-webkit-details-marker{display:none;}
+details summary::before{content:'▶';font-size:.55rem;transition:transform .15s;}
+details[open] summary::before{transform:rotate(90deg);}
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.7rem;}
+
+/* Gauge */
+.gw{display:flex;flex-direction:column;align-items:center;gap:.8rem;}
+.gp{font-family:var(--fd);font-size:2.8rem;font-weight:600;text-align:center;line-height:1;}
+.gl{font-size:.7rem;color:var(--muted);font-family:var(--fm);text-transform:uppercase;letter-spacing:.1em;}
+.rb{display:inline-flex;align-items:center;gap:5px;padding:.32rem .9rem;border-radius:100px;font-size:.7rem;font-weight:500;font-family:var(--fm);letter-spacing:.04em;}
+.r-lo{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3);}
+.r-me{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+.r-hi{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+
+/* Risk factors */
+.rfl{display:flex;flex-direction:column;gap:.45rem;}
+.rt{padding:.6rem .9rem;border-radius:6px;font-size:.76rem;font-weight:400;border-left:2.5px solid;line-height:1.5;}
+.rt-d{background:rgba(239,68,68,.1);border-color:#ef4444;color:#fca5a5;}
+.rt-w{background:rgba(245,158,11,.1);border-color:#f59e0b;color:#fcd34d;}
+.rt-o{background:rgba(34,197,94,.1);border-color:#22c55e;color:#86efac;}
+.rt-i{background:var(--or-bg);border-color:var(--or);color:var(--or-dk);}
+
+/* AI section */
+.ai-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
+.ai-title{font-family:var(--fm);font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.14em;color:var(--faint);display:flex;align-items:center;gap:.5rem;}
+.ai-title::before{content:'';display:block;width:14px;height:1.5px;background:var(--or);}
+.ai-btn{background:var(--or);color:#fff;border:none;padding:.42rem 1rem;border-radius:6px;font-size:.73rem;font-weight:500;cursor:pointer;transition:opacity .2s;font-family:var(--fb);}
+.ai-btn:hover:not(:disabled){opacity:.88;}
+.ai-btn:disabled{opacity:.3;cursor:not-allowed;}
+.ai-out{background:var(--or-bg);border:1px solid var(--or-bd);border-radius:8px;padding:1.1rem 1.3rem;font-size:.8rem;line-height:1.85;color:var(--text);}
+.ai-out strong{color:var(--or);font-weight:600;}
+.hint{font-size:.72rem;color:var(--faint);font-family:var(--fm);padding:.75rem 1rem;background:var(--bg);border-radius:6px;border:1px solid var(--border);line-height:1.6;}
+.rt-sev{font-family:var(--fm);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-right:.45rem;}
+.rfl-sep{font-family:var(--fm);font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);padding:.55rem 0 .3rem;border-top:1px solid var(--border2);margin-top:.35rem;}
+.ai-body{display:flex;flex-direction:column;gap:.6rem;}
+.ai-sec{font-family:var(--fm);font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.14em;color:var(--or);padding:.45rem 0 .2rem;border-bottom:1px solid var(--or-bd);margin-top:.5rem;}
+.ai-sec:first-child{margin-top:0;}
+.ai-p{font-size:.82rem;line-height:1.78;color:var(--text);margin:0;}
+.ai-ul{padding-left:1.15rem;display:flex;flex-direction:column;gap:.35rem;margin:0;}
+.ai-ul li{font-size:.8rem;line-height:1.65;color:var(--text);}
+.ai-ul li strong{color:var(--or-dk);}
+</style>
+</head>
+<body>
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="sb-brand">HR Analytics</div>
+    <div class="sb-sub">Decision Support</div>
+  </div>
+  <a href="index.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6.5L7 1.5L13 6.5V13H9.5V9.5H4.5V13H1V6.5Z"/></svg>
+    Home
+  </a>
+  <a href="statistics.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="8" width="3" height="5" rx=".5"/><rect x="5.5" y="5" width="3" height="8" rx=".5"/><rect x="10" y="2" width="3" height="11" rx=".5"/></svg>
+    Statistics
+  </a>
+  <a href="prediction.html" class="nav-a on">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><circle cx="7" cy="7" r="2.5"/><circle cx="7" cy="7" r=".75" fill="currentColor" stroke="none"/></svg>
+    Prediction
+  </a>
+  <a href="dataset.html" class="nav-a">
+    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="12" height="12" rx="1.5"/><line x1="1" y1="5" x2="13" y2="5"/><line x1="5" y1="5" x2="5" y2="13"/></svg>
+    Dataset
+  </a>
+  <div class="api-badge" id="apiBadge">
+    <span id="apiBadgeDot">◌</span>
+    <span id="apiBadgeText">Connecting…</span>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="ph">
+    <div class="pt">Attrition Prediction</div>
+    <div class="ps">Search by Employee ID · Groq AI recommendations</div>
+  </div>
+
+  <div class="sr">
+    <input class="si" id="sid" placeholder="Employee ID" maxlength="10" onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button class="sb2" onclick="doSearch()">Search →</button>
+    <span class="sh" id="sh"></span>
+  </div>
+
+  <div id="rp">
+    <div class="pg">
+      <!-- Profile -->
+      <div class="card">
+        <div class="card-title">Employee Profile</div>
+        <div class="ig" id="ig"></div>
+        <details>
+          <summary>View all fields</summary>
+          <div class="mg" id="mg"></div>
+        </details>
+      </div>
+      <!-- Gauge -->
+      <div class="card" style="display:flex;flex-direction:column;">
+        <div class="card-title">Risk Assessment</div>
+        <div class="gw" style="flex:1;justify-content:center;">
+          <div style="position:relative;width:200px;height:116px;">
+            <svg width="200" height="116" viewBox="0 0 200 116" style="overflow:visible">
+              <defs>
+                <linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#16a34a"/>
+                  <stop offset="50%" style="stop-color:#d97706"/>
+                  <stop offset="100%" style="stop-color:#dc2626"/>
+                </linearGradient>
+              </defs>
+              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#3d4a5c" stroke-width="11" stroke-linecap="round"/>
+              <path id="gf" d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#gg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)"/>
+              <line id="gn" x1="100" y1="100" x2="100" y2="32" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round" style="transform-origin:100px 100px;transform:rotate(-90deg);transition:transform 1s cubic-bezier(.4,0,.2,1)"/>
+              <circle cx="100" cy="100" r="3.5" fill="#e2e8f0"/>
+            </svg>
+          </div>
+          <div class="gp" id="gp">—</div>
+          <div class="gl">Attrition Probability</div>
+          <div class="rb" id="rb">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk factors -->
+    <div class="card" style="margin-bottom:1.1rem">
+      <div class="card-title">Key Risk Factors</div>
+      <div class="rfl" id="rfl"></div>
+    </div>
+
+    <!-- AI -->
+    <div class="card">
+      <div class="ai-hdr">
+        <div class="ai-title">Groq AI Recommendation</div>
+        <button class="ai-btn" id="aiBtn" onclick="genAI()" disabled>Generate Insight</button>
+      </div>
+      <div id="aiWrap">
+        <div class="hint">Search for an employee above, then click "Generate Insight" for AI-powered HR recommendations.</div>
+      </div>
+    </div>
+    <div style="height:1.5rem"></div>
+  </div>
+</main>
+
+<script>
+const df = HR_DATA;
+let apiKey='', apiOk=false, curEmp=null, curProba=0, curRisks=[], curGap=null;
+const _aiCache = new Map(); /* cache responses per EmployeeID — avoids duplicate API calls */
+
+function setBadge(state, dot, text) {
+  document.getElementById('apiBadge').className = 'api-badge ' + state;
+  document.getElementById('apiBadgeDot').textContent = dot;
+  document.getElementById('apiBadgeText').textContent = text;
+}
+
+/* Init: read key from config.js, no test request fired */
+window.addEventListener('DOMContentLoaded', () => {
+  const k = (typeof GROQ_API_KEY !== 'undefined') ? GROQ_API_KEY.trim() : '';
+  if (k.length > 20) {
+    apiKey = k;
+    apiOk = true;
+    window._aiModel = 'llama-3.3-70b-versatile';
+    setBadge('ready', '●', 'Groq AI Ready');
+    updBtn();
+  } else {
+    setBadge('error', '✕', 'No API key — run node setup.js');
+  }
+});
+
+/* Fetch with hard timeout (aborts after ms milliseconds) */
+function fetchWithTimeout(url, opts, ms = 15000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal })
+    .finally(() => clearTimeout(timer));
+}
+
+/* Classify API error into a readable message */
+function classifyError(status, msg = '') {
+  if (status === 401) return 'API key invalid — check config.js and re-run node setup.js.';
+  if (status === 403) return 'API key unauthorized — check your Groq account at console.groq.com.';
+  if (status === 404) return `Model not found. (${msg})`;
+  if (status === 400) return `Bad request: ${msg}`;
+  if (status === 429) return 'Rate limit reached — wait a moment and click Regenerate.';
+  if (status >= 500) return `Groq service error (${status}) — try again in a moment.`;
+  return msg || `Unexpected error (HTTP ${status})`;
+}
+
+/* Risk scoring */
+function deptMed(dept) {
+  const rows = df.filter(r=>r.Department===dept).map(r=>r.MonthlyIncome).sort((a,b)=>a-b);
+  if (!rows.length) return 0;
+  const m = Math.floor(rows.length/2);
+  return rows.length%2===0 ? (rows[m-1]+rows[m])/2 : rows[m];
+}
+
+/* ML inference: SVM (RBF kernel) from model.js */
+function score(emp) {
+  /* Fallback rule-based scorer used only if model.js failed to load */
+  const dm = deptMed(emp.Department);
+  const gap = dm > 0 ? (emp.MonthlyIncome - dm) / dm : 0;
+  let s=0, mx=0;
+  mx+=20; if(emp.OverTime==='Yes') s+=20;
+  mx+=15; if(gap<-.2)s+=15; else if(gap<-.1)s+=9; else if(gap<0)s+=4;
+  mx+=12; const p=emp.YearsSinceLastPromotion||0; if(p>=7)s+=12; else if(p>=5)s+=8; else if(p>=3)s+=4;
+  mx+=10; s+=(5-(emp.JobSatisfaction||4))/4*10;
+  mx+=8;  s+=(5-(emp.WorkLifeBalance||4))/4*8;
+  mx+=8;  const y=emp.YearsAtCompany||0; if(y<=2)s+=8; else if(y<=5)s+=4;
+  mx+=7;  const nc=emp.NumCompaniesWorked||0; if(nc>=7)s+=7; else if(nc>=4)s+=4; else if(nc>=2)s+=2;
+  mx+=5;  if(emp.MaritalStatus==='Single')s+=5; else if(emp.MaritalStatus==='Divorced')s+=2;
+  mx+=5;  const d=emp.DistanceFromHome||0; if(d>=20)s+=5; else if(d>=10)s+=3;
+  mx+=6;  s+=(5-(emp.EnvironmentSatisfaction||4))/4*6;
+  mx+=4;  if(emp.BusinessTravel==='Travel_Frequently')s+=4; else if(emp.BusinessTravel==='Travel_Rarely')s+=1;
+  mx+=4;  if((emp.StockOptionLevel??1)===0)s+=4;
+  return Math.min(Math.max(5 + s/mx*85, 3), 95);
+}
+
+function mlScore(emp) {
+  if (typeof HR_MODEL === 'undefined') return score(emp); /* model.js not loaded — use fallback */
+
+  const m  = HR_MODEL;
+  const lm = m.label_maps;
+
+  /* Map employee fields to the same feature vector the model was trained on */
+  const featureMap = {
+    Age:                     +(emp.Age)                     || 0,
+    DistanceFromHome:        +(emp.DistanceFromHome)        || 0,
+    Education:               +(emp.Education)               || 1,
+    JobLevel:                +(emp.JobLevel)                || 1,
+    JobSatisfaction:         +(emp.JobSatisfaction)         || 3,
+    MonthlyIncome:           +(emp.MonthlyIncome)           || 0,
+    NumCompaniesWorked:      +(emp.NumCompaniesWorked)      || 0,
+    PerformanceRating:       +(emp.PerformanceRating)       || 3,
+    RelationshipSatisfaction:+(emp.RelationshipSatisfaction)|| 3,
+    StockOptionLevel:        +(emp.StockOptionLevel ?? 0),
+    TotalWorkingYears:       +(emp.TotalWorkingYears)       || 0,
+    TrainingTimesLastYear:   +(emp.TrainingTimesLastYear)   || 0,
+    WorkLifeBalance:         +(emp.WorkLifeBalance)         || 3,
+    YearsAtCompany:          +(emp.YearsAtCompany)          || 0,
+    YearsInCurrentRole:      +(emp.YearsInCurrentRole)      || 0,
+    YearsSinceLastPromotion: +(emp.YearsSinceLastPromotion) || 0,
+    YearsWithCurrManager:    +(emp.YearsWithCurrManager)    || 0,
+    EnvironmentSatisfaction: +(emp.EnvironmentSatisfaction) || 3,
+    OverTimeBin:  (lm.OverTime       ?.[emp.OverTime])        ?? 0,
+    MaritalBin:   (lm.MaritalStatus  ?.[emp.MaritalStatus])   ?? 0,
+    TravelBin:    (lm.BusinessTravel ?.[emp.BusinessTravel])  ?? 0,
+    DeptBin:      (lm.Department     ?.[emp.Department])      ?? 0,
+  };
+
+  /* Build vector in exact feature order, then standardise */
+  const x = m.features.map(f => featureMap[f] ?? 0);
+  const z = x.map((v, i) => (v - m.scaler_mean[i]) / m.scaler_scale[i]);
+
+  const prob = svmProbability(m, z);
+  return Math.round(prob * 1000) / 10; /* for better decimal precision */
+}
+
+/* RBF-kernel SVM decision function: f(z) = sum_i dual_coef[i]*K(sv_i,z) + intercept */
+function svmDecisionFunction(m, z) {
+  let f = m.intercept;
+  for (let i = 0; i < m.support_vectors.length; i++) {
+    const sv = m.support_vectors[i];
+    let sqDist = 0;
+    for (let j = 0; j < sv.length; j++) {
+      const d = sv[j] - z[j];
+      sqDist += d * d;
+    }
+    f += m.dual_coef[i] * Math.exp(-m.gamma * sqDist);
+  }
+  return f;
+}
+
+/* libsvm's Platt-scaling sigmoid (numerically-stabilised form of 1/(1+exp(fApB))) */
+function sigmoidPredict(f, A, B) {
+  const fApB = f * A + B;
+  return fApB >= 0
+    ? Math.exp(-fApB) / (1 + Math.exp(-fApB))
+    : 1 / (1 + Math.exp(fApB));
+}
+
+/* Pair Wise Coupling for binary classification */
+function pairwiseCoupling2(q) {
+  const r01 = q, r10 = 1 - q;
+  const p = [0.5, 0.5];
+  const Q = [
+    [r10 * r10, -r10 * r01],
+    [-r10 * r01, r01 * r01],
+  ];
+  const k = 2, eps = 0.005 / k, maxIter = Math.max(100, k);
+  for (let iter = 0; iter < maxIter; iter++) {
+    const Qp = [Q[0][0] * p[0] + Q[0][1] * p[1], Q[1][0] * p[0] + Q[1][1] * p[1]];
+    const pQpTotal = p[0] * Qp[0] + p[1] * Qp[1];
+    let pQp = pQpTotal;
+    const maxError = Math.max(Math.abs(Qp[0] - pQp), Math.abs(Qp[1] - pQp));
+    if (maxError < eps) break;
+    for (let t = 0; t < k; t++) {
+      const diff = (-Qp[t] + pQp) / Q[t][t];
+      p[t] += diff;
+      pQp = (pQp + diff * (diff * Q[t][t] + 2 * Qp[t])) / (1 + diff) / (1 + diff);
+      for (let j = 0; j < k; j++) {
+        Qp[j] = (Qp[j] + diff * Q[t][j]) / (1 + diff);
+        p[j] /= (1 + diff);
+      }
+    }
+  }
+  return p[1]; /* probability of class 1 = Attrition */
+}
+
+/* Full SVM predict_proba(z)[1], matching sklearn exactly */
+function svmProbability(m, z) {
+  const decision = svmDecisionFunction(m, z);
+  const f = -decision; /* libsvm's internal decision value is the negation of the public one */
+  const q = Math.min(Math.max(sigmoidPredict(f, m.probA, m.probB), 1e-7), 1 - 1e-7);
+  return pairwiseCoupling2(q);
+}
+
+function buildRisks(emp, dm) {
+  const risks = [], strengths = [];
+  const g = dm > 0 ? (emp.MonthlyIncome - dm) / dm * 100 : 0;
+  curGap = g;
+
+  /* Salary vs dept median */
+  if (g < -20)      risks.push({ t:`Salary ${Math.abs(g).toFixed(0)}% below dept median ($${emp.MonthlyIncome.toLocaleString()} vs median $${Math.round(dm).toLocaleString()})`, c:'d', sev:'Critical' });
+  else if (g < -10) risks.push({ t:`Salary ${Math.abs(g).toFixed(0)}% below dept median — pay gap concern`, c:'w', sev:'High' });
+  else if (g > 15)  strengths.push({ t:`Salary ${g.toFixed(0)}% above dept median — competitive pay ($${emp.MonthlyIncome.toLocaleString()})`, c:'o', sev:'Strength' });
+
+  /* Overtime */
+  if (emp.OverTime === 'Yes') risks.push({ t:'Currently working overtime — elevated burnout and attrition risk', c:'d', sev:'Critical' });
+  else                        strengths.push({ t:'No overtime — healthy workload management', c:'o', sev:'Strength' });
+
+  /* Promotion */
+  const pr = emp.YearsSinceLastPromotion || 0;
+  if (pr >= 7)      risks.push({ t:`No promotion in ${pr} years — severe career stagnation`, c:'d', sev:'Critical' });
+  else if (pr >= 5) risks.push({ t:`No promotion in ${pr} years — career growth concern`, c:'w', sev:'High' });
+  else if (pr >= 3) risks.push({ t:`No promotion in ${pr} years — monitor career progression`, c:'i', sev:'Medium' });
+  else if (pr <= 1) strengths.push({ t:'Recently promoted — positive career momentum', c:'o', sev:'Strength' });
+
+  /* Job Satisfaction (1–4) */
+  const js = emp.JobSatisfaction || 3;
+  if (js === 1)      risks.push({ t:`Very low job satisfaction (1/4) — critical disengagement signal`, c:'d', sev:'Critical' });
+  else if (js === 2) risks.push({ t:`Low job satisfaction (2/4) — active attention needed`, c:'w', sev:'High' });
+  else if (js >= 4)  strengths.push({ t:`High job satisfaction (${js}/4) — engaged employee`, c:'o', sev:'Strength' });
+
+  /* Work-Life Balance (1–4) */
+  const wlb = emp.WorkLifeBalance || 3;
+  if (wlb === 1)     risks.push({ t:`Very poor work-life balance (1/4) — critical stress factor`, c:'d', sev:'Critical' });
+  else if (wlb === 2) risks.push({ t:`Poor work-life balance (2/4) — burnout risk`, c:'w', sev:'High' });
+  else if (wlb >= 4)  strengths.push({ t:`Excellent work-life balance (${wlb}/4) — low burnout risk`, c:'o', sev:'Strength' });
+
+  /* Environment Satisfaction (1–4) */
+  const es = emp.EnvironmentSatisfaction || 3;
+  if (es === 1)      risks.push({ t:`Very low environment satisfaction (1/4) — serious workplace fit issue`, c:'w', sev:'High' });
+  else if (es === 2) risks.push({ t:`Low environment satisfaction (2/4) — workplace concerns`, c:'i', sev:'Medium' });
+  else if (es >= 4)  strengths.push({ t:`High environment satisfaction (${es}/4) — positive workplace fit`, c:'o', sev:'Strength' });
+
+  /* Relationship Satisfaction (1–4) */
+  const rls = emp.RelationshipSatisfaction || 3;
+  if (rls === 1)     risks.push({ t:`Very low relationship satisfaction (1/4) — interpersonal conflict risk`, c:'w', sev:'High' });
+  else if (rls === 2) risks.push({ t:`Low relationship satisfaction (2/4) — team dynamic concern`, c:'i', sev:'Medium' });
+
+  /* Tenure */
+  const yac = emp.YearsAtCompany || 0;
+  if (yac <= 1)      risks.push({ t:`Very new hire (${yac} yr) — vulnerable early-attrition window`, c:'w', sev:'High' });
+  else if (yac <= 2) risks.push({ t:`Early-tenure employee (${yac} yrs) — mentorship critical`, c:'i', sev:'Medium' });
+  else if (yac >= 10) strengths.push({ t:`Long tenure (${yac} yrs) — strong institutional knowledge`, c:'o', sev:'Strength' });
+  else if (yac >= 5)  strengths.push({ t:`Solid tenure (${yac} yrs) — established contributor`, c:'o', sev:'Strength' });
+
+  /* Business Travel */
+  if (emp.BusinessTravel === 'Travel_Frequently') risks.push({ t:'Frequent business travel — fatigue and work-life disruption', c:'w', sev:'High' });
+
+  /* Stock Options */
+  const so = emp.StockOptionLevel ?? 1;
+  if (so === 0)  risks.push({ t:'No stock options — reduced financial retention incentive', c:'i', sev:'Medium' });
+  else if (so >= 2) strengths.push({ t:`Stock option level ${so} — meaningful financial alignment`, c:'o', sev:'Strength' });
+
+  /* Job-hopping history */
+  const nc = emp.NumCompaniesWorked || 0;
+  if (nc >= 7)      risks.push({ t:`Worked at ${nc} companies — high mobility history`, c:'w', sev:'High' });
+  else if (nc >= 4) risks.push({ t:`Worked at ${nc} companies — above-average career mobility`, c:'i', sev:'Medium' });
+
+  /* Commute */
+  const dist = emp.DistanceFromHome || 0;
+  if (dist >= 25)    risks.push({ t:`${dist} km commute — high commute fatigue risk`, c:'w', sev:'High' });
+  else if (dist >= 15) risks.push({ t:`${dist} km commute — moderate commute burden`, c:'i', sev:'Medium' });
+
+  /* Training */
+  const tr = emp.TrainingTimesLastYear || 0;
+  if (tr === 0)   risks.push({ t:'No training last year — professional development gap', c:'i', sev:'Medium' });
+  else if (tr >= 5) strengths.push({ t:`${tr} training sessions last year — actively developed`, c:'o', sev:'Strength' });
+
+  const sevOrd = { Critical:0, High:1, Medium:2, Low:3 };
+  risks.sort((a, b) => (sevOrd[a.sev] ?? 9) - (sevOrd[b.sev] ?? 9));
+
+  curRisks = [...risks, ...strengths];
+  return { risks, strengths };
+}
+
+function doSearch() {
+  const id = document.getElementById('sid').value.trim().toUpperCase();
+  const sh = document.getElementById('sh');
+  if (!id) { sh.textContent='Enter an Employee ID'; return; }
+  const emp = df.find(r => String(r.EmployeeID).toUpperCase() === id);
+  if (!emp) { sh.textContent=`No employee found: ${id}`; return; }
+  sh.textContent=''; show(emp);
+}
+
+function show(emp) {
+  curEmp = emp;
+  document.getElementById('rp').style.display='block';
+  document.getElementById('aiWrap').innerHTML = apiOk
+    ? '<div class="hint">Click "Generate Insight" to get AI-powered HR recommendations.</div>'
+    : '<div class="hint">AI unavailable — check that config.js has a valid Gemini API key.</div>';
+
+  const prim = ['EmployeeID','EmployeeName','Age','Gender','Department','JobRole','MonthlyIncome','YearsAtCompany'];
+  document.getElementById('ig').innerHTML = prim.map(k => {
+    const v = emp[k], d = k==='MonthlyIncome' ? '$'+(+v).toLocaleString() : (v??'—');
+    return `<div class="ir"><div class="il">${k.replace(/([A-Z])/g,' $1').trim()}</div><div class="iv">${d}</div></div>`;
+  }).join('');
+
+  const shown = new Set([...prim,'Attrition','EmployeeCount','StandardHours','Over18']);
+  document.getElementById('mg').innerHTML = Object.keys(emp)
+    .filter(k=>!shown.has(k)&&emp[k]!=null)
+    .map(k=>`<div class="ir"><div class="il">${k.replace(/([A-Z])/g,' $1').trim()}</div><div class="iv" style="font-size:.76rem">${emp[k]}</div></div>`)
+    .join('');
+
+  const dm = deptMed(emp.Department);
+  const p = mlScore(emp); curProba = p;
+  setTimeout(() => {
+    document.getElementById('gf').style.strokeDashoffset = 251.2*(1-p/100);
+    document.getElementById('gn').style.transform = `rotate(${-90+p/100*180}deg)`;
+    document.getElementById('gp').textContent = p.toFixed(1)+'%';
+    document.getElementById('gp').style.color = p<40?'#16a34a':p<70?'#d97706':'#dc2626';
+    const b = document.getElementById('rb');
+    if(p<40){ b.className='rb r-lo'; b.textContent='Low Risk'; }
+    else if(p<70){ b.className='rb r-me'; b.textContent='Medium Risk'; }
+    else { b.className='rb r-hi'; b.textContent='High Risk'; }
+  }, 80);
+
+  const { risks, strengths } = buildRisks(emp, dm);
+  const rflEl = document.getElementById('rfl');
+  let rflHtml = '';
+  if (risks.length) {
+    rflHtml += risks.slice(0, 6).map(r =>
+      `<div class="rt rt-${r.c}"><span class="rt-sev">${r.sev}</span>${r.t}</div>`
+    ).join('');
+  }
+  if (strengths.length) {
+    if (rflHtml) rflHtml += '<div class="rfl-sep">Retention Strengths</div>';
+    rflHtml += strengths.slice(0, 4).map(r =>
+      `<div class="rt rt-${r.c}"><span class="rt-sev">${r.sev}</span>${r.t}</div>`
+    ).join('');
+  }
+  rflEl.innerHTML = rflHtml || '<div class="rt rt-o">No major risk factors detected</div>';
+  updBtn();
+}
+
+function updBtn() { document.getElementById('aiBtn').disabled = !apiOk || !curEmp; }
+
+/* AI response rendering helpers */
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function md2html(s) {
+  return escHtml(s)
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>');
+}
+function renderAIResponse(text) {
+  const lines = text.trim().split('\n');
+  let html = '<div class="ai-body">', inList = false, listTag = 'ul';
+  for (const raw of lines) {
+    const t = raw.trim();
+    if (!t) { if (inList) { html += `</${listTag}>`; inList = false; } continue; }
+    if (/^\*\*[^*]+\*\*\s*$/.test(t)) {
+      if (inList) { html += `</${listTag}>`; inList = false; }
+      html += `<div class="ai-sec">${escHtml(t.replace(/\*\*/g,''))}</div>`;
+      continue;
+    }
+    if (/^[•\-]\s/.test(t)) {
+      if (!inList || listTag !== 'ul') { if (inList) html += `</${listTag}>`; html += '<ul class="ai-ul">'; inList = true; listTag = 'ul'; }
+      html += `<li>${md2html(t.replace(/^[•\-]\s*/,''))}</li>`;
+      continue;
+    }
+    if (inList) { html += `</${listTag}>`; inList = false; }
+    html += `<p class="ai-p">${md2html(t)}</p>`;
+  }
+  if (inList) html += `</${listTag}>`;
+  return html + '</div>';
+}
+
+/* Gemini text generation */
+async function genAI() {
+  if (!apiOk || !curEmp) return;
+
+  const btn = document.getElementById('aiBtn');
+  const wrap = document.getElementById('aiWrap');
+  const empId = String(curEmp.EmployeeID);
+
+  /* Return cached result if available — no API call needed */
+  if (_aiCache.has(empId)) {
+    wrap.innerHTML = `<div class="ai-out">${_aiCache.get(empId)}</div>`;
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Generating…';
+  wrap.innerHTML = '<div class="ai-out" style="color:var(--faint)">Generating recommendation…</div>';
+
+  const e = curEmp, p = curProba;
+  const ll = p >= 50 ? 'leave' : 'stay';
+  const dm2 = deptMed(e.Department);
+  const salCtx = curGap !== null
+    ? (curGap < -10 ? `${Math.abs(curGap).toFixed(1)}% below dept median`
+      : curGap > 10 ? `${curGap.toFixed(1)}% above dept median`
+      : `near median (±${Math.abs(curGap).toFixed(1)}%)`) : 'N/A';
+
+  const riskItems = curRisks.filter(r => r.sev !== 'Strength');
+  const strengthItems = curRisks.filter(r => r.sev === 'Strength');
+
+  const prompt = `You are an expert HR consultant specializing in employee retention strategy. Analyze this employee profile and produce a structured, data-driven retention plan.
+
+=== EMPLOYEE PROFILE ===
+Name: ${e.EmployeeName || 'Employee'} | ID: ${e.EmployeeID}
+Age: ${e.Age} | Gender: ${e.Gender} | Marital Status: ${e.MaritalStatus}
+Department: ${e.Department} | Job Role: ${e.JobRole} | Job Level: ${e.JobLevel ?? 'N/A'}
+Monthly Income: $${(e.MonthlyIncome || 0).toLocaleString()} (${salCtx}; dept median $${Math.round(dm2).toLocaleString()})
+
+=== TENURE & CAREER ===
+Years at Company: ${e.YearsAtCompany} | Years in Current Role: ${e.YearsInCurrentRole ?? 0}
+Years Since Last Promotion: ${e.YearsSinceLastPromotion ?? 0} | Years with Manager: ${e.YearsWithCurrManager ?? 0}
+Total Working Years: ${e.TotalWorkingYears ?? 0} | Companies Worked At: ${e.NumCompaniesWorked ?? 0}
+
+=== ENGAGEMENT SCORES (1=Lowest, 4=Highest) ===
+Job Satisfaction: ${e.JobSatisfaction ?? 'N/A'}/4 | Work-Life Balance: ${e.WorkLifeBalance ?? 'N/A'}/4
+Environment Satisfaction: ${e.EnvironmentSatisfaction ?? 'N/A'}/4 | Relationship Satisfaction: ${e.RelationshipSatisfaction ?? 'N/A'}/4
+
+=== WORKLOAD & CONDITIONS ===
+Overtime: ${e.OverTime} | Business Travel: ${e.BusinessTravel} | Distance from Home: ${e.DistanceFromHome ?? 0} km
+Performance Rating: ${e.PerformanceRating ?? 'N/A'}/4 | Training Sessions Last Year: ${e.TrainingTimesLastYear ?? 0}
+Stock Option Level: ${e.StockOptionLevel ?? 0}
+
+=== RISK ASSESSMENT ===
+Attrition Probability: ${p.toFixed(1)}% — ${p < 40 ? 'LOW RISK' : p < 70 ? 'MEDIUM RISK' : 'HIGH RISK'}
+
+Risk Factors (sorted by severity):
+${riskItems.length ? riskItems.map(r => `[${r.sev.toUpperCase()}] ${r.t}`).join('\n') : 'None identified'}
+
+Retention Strengths:
+${strengthItems.length ? strengthItems.map(r => `[+] ${r.t}`).join('\n') : 'None identified'}
+
+=== REQUIRED OUTPUT FORMAT ===
+Use EXACTLY these bold section headers:
+
+**ASSESSMENT**
+2–3 sentences: who this employee is, their risk level, and the primary driver.
+
+**IMMEDIATE ACTIONS (0–30 days)**
+• **Action name**: Specific step with responsible party and expected outcome.
+• **Action name**: Specific step with responsible party and expected outcome.
+
+**SHORT-TERM ACTIONS (1–3 months)**
+• **Action name**: Specific step with responsible party and expected outcome.
+• **Action name**: Specific step with responsible party and expected outcome.
+
+**LONG-TERM ACTIONS (3–6 months)**
+• **Action name**: Specific step with responsible party and expected outcome.
+
+**RETENTION LEVERAGE**
+One sentence: the single most impactful retention action for this specific employee.
+
+=== RULES ===
+- Ground every recommendation in the specific data — cite actual scores, pay gaps, and values
+- Each bullet: max 30 words, direct and specific
+- No "foster", "enhance", "empower", "holistic"
+- Do NOT suggest pay raise if salary is at or above dept median
+- If Overtime is Critical, make workload/scheduling the first priority
+- If any satisfaction score ≤2, directly address that specific dimension
+- Include specific timeframes (e.g., "within 2 weeks", "by next quarter")`;
+
+
+  const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'];
+  const startIdx = Math.max(0, MODELS.indexOf(window._aiModel || 'llama-3.3-70b-versatile'));
+  const tryModels = [...MODELS.slice(startIdx), ...MODELS.slice(0, startIdx)];
+
+  for (const model of tryModels) {
+    /* Up to 2 attempts per model — waits 10 s after first 429 before retrying */
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetchWithTimeout(
+          'https://api.groq.com/openai/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+            body: JSON.stringify({
+              model: model,
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.7,
+              max_tokens: 1200
+            })
+          }
+        );
+
+        if (res.status === 429) {
+          if (attempt === 0) {
+            wrap.innerHTML = `<div class="ai-out" style="color:var(--am)">⏳ Rate limited — retrying in 10 s…</div>`;
+            await new Promise(r => setTimeout(r, 10000));
+            continue;
+          }
+          break; /* both attempts exhausted — try next model */
+        }
+
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          if (res.status === 404) { break; } /* model not available — try next */
+          throw new Error(classifyError(res.status, errBody.error?.message));
+        }
+
+        const d = await res.json();
+        const text = d.choices?.[0]?.message?.content;
+        if (!text) throw new Error(d.error?.message || 'Empty response from Groq');
+
+        const html = renderAIResponse(text);
+        _aiCache.set(empId, html);
+        window._aiModel = model;
+        wrap.innerHTML = `<div class="ai-out">${html}</div>`;
+        btn.disabled=false; btn.textContent='Regenerate'; updBtn();
+        return;
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          wrap.innerHTML = `<div class="ai-out" style="color:var(--re)">⚠ Request timed out (15 s) — check your connection and try again.</div>`;
+          btn.disabled=false; btn.textContent='Regenerate'; updBtn();
+          return;
+        }
+        wrap.innerHTML = `<div class="ai-out" style="color:var(--re)">⚠ ${err.message}</div>`;
+        btn.disabled=false; btn.textContent='Regenerate'; updBtn();
+        return;
+      }
+    }
+  }
+
+  wrap.innerHTML = `<div class="ai-out" style="color:var(--am)">⏳ All models rate-limited. Wait ~60 seconds then click Regenerate.</div>`;
+  btn.disabled=false; btn.textContent='Regenerate'; updBtn();
+}
+</script>
+</body>
+</html>
