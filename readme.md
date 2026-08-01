@@ -3,6 +3,10 @@
 All the data science work for this project lives in one notebook:
 👉 [Attrition Analytics](Attrition_Analytics_Code.ipynb)
 
+The [HR Analytic Attrition](HR-Emp-Att.csv) Dataset is an edited version CSV (by Me).
+
+You can get the original dataset from [Kaggle](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset/data).
+
 # HR Analytics Decision Support System: User Guide
 
 A simple web tool that helps HR teams answer one question: **which employees are likely to leave, and what should we do about it?**
