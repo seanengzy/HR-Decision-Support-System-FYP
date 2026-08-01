@@ -1,3 +1,8 @@
+# HR Analytics Notebook
+
+All the data science work for this project lives in one notebook:
+#### 👉 [Attrition Analytics.ipynb](Attrition%20Analytics.ipynb)
+
 # HR Analytics Decision Support System: User Guide
 
 A simple web tool that helps HR teams answer one question: **which employees are likely to leave, and what should we do about it?**
