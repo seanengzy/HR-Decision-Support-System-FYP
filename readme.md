@@ -1,7 +1,7 @@
 # HR Analytics Notebook
 
 All the data science work for this project lives in one notebook:
-👉 [Attrition Analytics.ipynb](Attrition%20Analytics.ipynb)
+👉 [Attrition Analytics](Attrition_Analytics_Code.ipynb)
 
 # HR Analytics Decision Support System: User Guide
 
